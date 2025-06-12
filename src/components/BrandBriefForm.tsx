@@ -17,6 +17,7 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
     brandName: '',
     websiteUrl: '',
     category: '',
+    topic: '',
     keywords: '',
     targetAudience: '',
     tone: '',
@@ -25,7 +26,7 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.brandName && formData.category && formData.tone) {
+    if (formData.brandName && formData.category && formData.topic && formData.tone) {
       onSubmit(formData);
     }
   };
@@ -46,6 +47,21 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
     'Travel & Hospitality',
     'Automotive',
     'Other'
+  ];
+
+  const topics = [
+    'How-to Guides & Tutorials',
+    'Industry Trends & Analysis',
+    'Product Reviews & Comparisons',
+    'Tips & Best Practices',
+    'Case Studies & Success Stories',
+    'Beginner\'s Guide',
+    'Advanced Strategies',
+    'Common Mistakes to Avoid',
+    'Future Predictions',
+    'Behind the Scenes',
+    'Customer Stories',
+    'Problem-Solution Articles'
   ];
 
   const tones = [
@@ -111,22 +127,40 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="tone" className="text-sm font-medium text-gray-700">
-            Content Tone *
+          <Label htmlFor="topic" className="text-sm font-medium text-gray-700">
+            Content Topic *
           </Label>
-          <Select value={formData.tone} onValueChange={(value) => handleInputChange('tone', value)}>
+          <Select value={formData.topic} onValueChange={(value) => handleInputChange('topic', value)}>
             <SelectTrigger className="border-gray-200 focus:border-purple-500">
-              <SelectValue placeholder="Select content tone" />
+              <SelectValue placeholder="Choose content type" />
             </SelectTrigger>
             <SelectContent>
-              {tones.map((tone) => (
-                <SelectItem key={tone} value={tone}>
-                  {tone}
+              {topics.map((topic) => (
+                <SelectItem key={topic} value={topic}>
+                  {topic}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="tone" className="text-sm font-medium text-gray-700">
+          Content Tone *
+        </Label>
+        <Select value={formData.tone} onValueChange={(value) => handleInputChange('tone', value)}>
+          <SelectTrigger className="border-gray-200 focus:border-purple-500">
+            <SelectValue placeholder="Select content tone" />
+          </SelectTrigger>
+          <SelectContent>
+            {tones.map((tone) => (
+              <SelectItem key={tone} value={tone}>
+                {tone}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
@@ -171,7 +205,7 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
       <Button 
         type="submit" 
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-3"
-        disabled={!formData.brandName || !formData.category || !formData.tone}
+        disabled={!formData.brandName || !formData.category || !formData.topic || !formData.tone}
       >
         <Send className="w-4 h-4 mr-2" />
         Generate AI Content

@@ -4,9 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { BrandBrief, GeneratedContent } from '@/pages/Index';
-import { ArrowLeft, Copy, Download, RefreshCw, Globe, Palette } from 'lucide-react';
+import { ArrowLeft, Copy, Download, RefreshCw, Globe, Palette, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DeepSeekService } from '@/services/deepseekApi';
 
 interface ContentResultsProps {
   content: GeneratedContent;
@@ -22,6 +25,11 @@ const ContentResults: React.FC<ContentResultsProps> = ({
   onRegenerateWithTone 
 }) => {
   const [selectedTone, setSelectedTone] = useState(content.tone);
+  const [apiKey, setApiKey] = useState('');
+  const [isLocalizing, setIsLocalizing] = useState(false);
+  const [isHumanizing, setIsHumanizing] = useState(false);
+  const [localizedContent, setLocalizedContent] = useState<string>('');
+  const [humanizedContent, setHumanizedContent] = useState<string>('');
   const { toast } = useToast();
 
   const tones = [
@@ -71,8 +79,120 @@ ${content.body}
     });
   };
 
+  const handleLocalization = async (variant: 'UK' | 'AU') => {
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your DeepSeek API key to use localization",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLocalizing(true);
+    try {
+      const deepseek = new DeepSeekService(apiKey);
+      const localized = await deepseek.localizeContent(content.body, variant);
+      setLocalizedContent(localized);
+      toast({
+        title: "Localization Complete",
+        description: `Content converted to ${variant} English`,
+      });
+    } catch (error) {
+      toast({
+        title: "Localization Failed",
+        description: "Please check your API key and try again",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLocalizing(false);
+    }
+  };
+
+  const handleHumanization = async () => {
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your DeepSeek API key to use humanization",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsHumanizing(true);
+    try {
+      const deepseek = new DeepSeekService(apiKey);
+      const humanized = await deepseek.humanizeContent(content.body);
+      setHumanizedContent(humanized);
+      toast({
+        title: "Humanization Complete",
+        description: "Content has been made more natural and engaging",
+      });
+    } catch (error) {
+      toast({
+        title: "Humanization Failed",
+        description: "Please check your API key and try again",
+        variant: "destructive"
+      });
+    } finally {
+      setIsHumanizing(false);
+    }
+  };
+
+  // Function to render content with image placeholders replaced
+  const renderContentWithImages = (text: string) => {
+    const parts = text.split(/(\[IMAGE_PLACEHOLDER_\d+\])/g);
+    let imageIndex = 0;
+    
+    return parts.map((part, index) => {
+      if (part.match(/\[IMAGE_PLACEHOLDER_\d+\]/)) {
+        const imageUrl = content.images[imageIndex];
+        imageIndex++;
+        
+        if (imageUrl) {
+          return (
+            <div key={index} className="my-6">
+              <img 
+                src={imageUrl} 
+                alt={`Content illustration ${imageIndex}`}
+                className="w-full max-w-2xl mx-auto rounded-lg border border-gray-200"
+              />
+            </div>
+          );
+        }
+        return null;
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
+
   return (
     <div className="space-y-6">
+      {/* API Key Input */}
+      <Card className="border-yellow-200 bg-yellow-50">
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-3">
+            <Key className="w-5 h-5 text-yellow-600" />
+            <div className="flex-1">
+              <Label htmlFor="apiKey" className="text-sm font-medium text-yellow-800">
+                DeepSeek API Key (Required for Tools)
+              </Label>
+              <Input
+                id="apiKey"
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Enter your DeepSeek API key..."
+                className="mt-1 border-yellow-300 focus:border-yellow-500"
+              />
+              <p className="text-xs text-yellow-700 mt-1">
+                Get your API key from <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer" className="underline">DeepSeek Platform</a>
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button 
@@ -138,13 +258,13 @@ ${content.body}
                 </Button>
               </div>
               <Badge variant="secondary" className="w-fit">
-                Tone: {content.tone}
+                Tone: {content.tone} | Topic: {brandBrief.topic}
               </Badge>
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
                 <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                  {content.body}
+                  {renderContentWithImages(content.body)}
                 </div>
               </div>
               <Button 
@@ -243,15 +363,41 @@ ${content.body}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">Convert content to different English variants</p>
+                <p className="text-gray-600 mb-4">Convert content to different English variants using DeepSeek AI</p>
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start">
-                    Convert to UK English
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start" 
+                    onClick={() => handleLocalization('UK')}
+                    disabled={isLocalizing || !apiKey}
+                  >
+                    {isLocalizing ? 'Converting...' : 'Convert to UK English'}
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    Convert to Australian English
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => handleLocalization('AU')}
+                    disabled={isLocalizing || !apiKey}
+                  >
+                    {isLocalizing ? 'Converting...' : 'Convert to Australian English'}
                   </Button>
                 </div>
+                {localizedContent && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                    <p className="text-sm text-green-800 mb-2">Localized Content:</p>
+                    <div className="text-xs text-green-700 max-h-32 overflow-y-auto">
+                      {localizedContent.substring(0, 200)}...
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => handleCopy(localizedContent, "Localized content")}
+                    >
+                      Copy Localized Content
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -263,10 +409,31 @@ ${content.body}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">Make AI content sound more natural and emotional</p>
-                <Button variant="outline" className="w-full">
-                  Humanize Content
+                <p className="text-gray-600 mb-4">Make AI content sound more natural and emotional using DeepSeek AI</p>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleHumanization}
+                  disabled={isHumanizing || !apiKey}
+                >
+                  {isHumanizing ? 'Humanizing...' : 'Humanize Content'}
                 </Button>
+                {humanizedContent && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-sm text-blue-800 mb-2">Humanized Content:</p>
+                    <div className="text-xs text-blue-700 max-h-32 overflow-y-auto">
+                      {humanizedContent.substring(0, 200)}...
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => handleCopy(humanizedContent, "Humanized content")}
+                    >
+                      Copy Humanized Content
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

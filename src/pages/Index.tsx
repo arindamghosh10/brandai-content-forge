@@ -10,6 +10,7 @@ export interface BrandBrief {
   brandName: string;
   websiteUrl: string;
   category: string;
+  topic: string;
   keywords: string;
   targetAudience: string;
   tone: string;
