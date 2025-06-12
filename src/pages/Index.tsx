@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import BrandBriefForm from '@/components/BrandBriefForm';
@@ -15,6 +14,7 @@ export interface BrandBrief {
   targetAudience: string;
   tone: string;
   referenceUrls: string;
+  wordCount: number;
 }
 
 export interface GeneratedContent {

@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { BrandBrief } from '@/pages/Index';
-import { Send, Key } from 'lucide-react';
+import { Send, Key, FileText } from 'lucide-react';
 
 interface BrandBriefFormProps {
   onSubmit: (brief: BrandBrief & { apiKey: string }) => void;
@@ -21,7 +21,8 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
     keywords: '',
     targetAudience: '',
     tone: '',
-    referenceUrls: ''
+    referenceUrls: '',
+    wordCount: 800
   });
   const [apiKey, setApiKey] = useState('');
 
@@ -32,8 +33,12 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
     }
   };
 
-  const handleInputChange = (field: keyof BrandBrief, value: string) => {
+  const handleInputChange = (field: keyof BrandBrief, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleWordCountChange = (value: number[]) => {
+    setFormData(prev => ({ ...prev, wordCount: value[0] }));
   };
 
   const categories = [
@@ -150,22 +155,45 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
         </p>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="tone" className="text-sm font-medium text-gray-700">
-          Content Tone *
-        </Label>
-        <Select value={formData.tone} onValueChange={(value) => handleInputChange('tone', value)}>
-          <SelectTrigger className="border-gray-200 focus:border-purple-500">
-            <SelectValue placeholder="Select content tone" />
-          </SelectTrigger>
-          <SelectContent>
-            {tones.map((tone) => (
-              <SelectItem key={tone} value={tone}>
-                {tone}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="tone" className="text-sm font-medium text-gray-700">
+            Content Tone *
+          </Label>
+          <Select value={formData.tone} onValueChange={(value) => handleInputChange('tone', value)}>
+            <SelectTrigger className="border-gray-200 focus:border-purple-500">
+              <SelectValue placeholder="Select content tone" />
+            </SelectTrigger>
+            <SelectContent>
+              {tones.map((tone) => (
+                <SelectItem key={tone} value={tone}>
+                  {tone}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <FileText className="w-4 h-4 text-purple-600" />
+            <Label className="text-sm font-medium text-gray-700">
+              Blog Post Length: {formData.wordCount} words
+            </Label>
+          </div>
+          <Slider
+            value={[formData.wordCount]}
+            onValueChange={handleWordCountChange}
+            max={2000}
+            min={300}
+            step={100}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>300 words</span>
+            <span>2000 words</span>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-2">
