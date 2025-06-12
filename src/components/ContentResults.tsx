@@ -4,16 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { BrandBrief, GeneratedContent } from '@/pages/Index';
-import { ArrowLeft, Copy, Download, RefreshCw, Globe, Palette, Key } from 'lucide-react';
+import { ArrowLeft, Copy, Download, RefreshCw, Globe, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DeepSeekService } from '@/services/deepseekApi';
 
 interface ContentResultsProps {
   content: GeneratedContent;
   brandBrief: BrandBrief;
+  apiKey: string;
   onBackToBrief: () => void;
   onRegenerateWithTone: (tone: string) => void;
 }
@@ -21,11 +20,11 @@ interface ContentResultsProps {
 const ContentResults: React.FC<ContentResultsProps> = ({ 
   content, 
   brandBrief, 
+  apiKey,
   onBackToBrief, 
   onRegenerateWithTone 
 }) => {
   const [selectedTone, setSelectedTone] = useState(content.tone);
-  const [apiKey, setApiKey] = useState('');
   const [isLocalizing, setIsLocalizing] = useState(false);
   const [isHumanizing, setIsHumanizing] = useState(false);
   const [localizedContent, setLocalizedContent] = useState<string>('');
@@ -80,15 +79,6 @@ ${content.body}
   };
 
   const handleLocalization = async (variant: 'UK' | 'AU') => {
-    if (!apiKey) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your DeepSeek API key to use localization",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsLocalizing(true);
     try {
       const deepseek = new DeepSeekService(apiKey);
@@ -110,15 +100,6 @@ ${content.body}
   };
 
   const handleHumanization = async () => {
-    if (!apiKey) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your DeepSeek API key to use humanization",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsHumanizing(true);
     try {
       const deepseek = new DeepSeekService(apiKey);
@@ -168,31 +149,6 @@ ${content.body}
 
   return (
     <div className="space-y-6">
-      {/* API Key Input */}
-      <Card className="border-yellow-200 bg-yellow-50">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-3">
-            <Key className="w-5 h-5 text-yellow-600" />
-            <div className="flex-1">
-              <Label htmlFor="apiKey" className="text-sm font-medium text-yellow-800">
-                DeepSeek API Key (Required for Tools)
-              </Label>
-              <Input
-                id="apiKey"
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your DeepSeek API key..."
-                className="mt-1 border-yellow-300 focus:border-yellow-500"
-              />
-              <p className="text-xs text-yellow-700 mt-1">
-                Get your API key from <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer" className="underline">DeepSeek Platform</a>
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button 
@@ -369,7 +325,7 @@ ${content.body}
                     variant="outline" 
                     className="w-full justify-start" 
                     onClick={() => handleLocalization('UK')}
-                    disabled={isLocalizing || !apiKey}
+                    disabled={isLocalizing}
                   >
                     {isLocalizing ? 'Converting...' : 'Convert to UK English'}
                   </Button>
@@ -377,7 +333,7 @@ ${content.body}
                     variant="outline" 
                     className="w-full justify-start"
                     onClick={() => handleLocalization('AU')}
-                    disabled={isLocalizing || !apiKey}
+                    disabled={isLocalizing}
                   >
                     {isLocalizing ? 'Converting...' : 'Convert to Australian English'}
                   </Button>
@@ -414,7 +370,7 @@ ${content.body}
                   variant="outline" 
                   className="w-full"
                   onClick={handleHumanization}
-                  disabled={isHumanizing || !apiKey}
+                  disabled={isHumanizing}
                 >
                   {isHumanizing ? 'Humanizing...' : 'Humanize Content'}
                 </Button>
