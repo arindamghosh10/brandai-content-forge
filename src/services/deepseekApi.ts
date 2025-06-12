@@ -1,11 +1,9 @@
-
 // DeepSeek API Configuration
 export const DEEPSEEK_API_CONFIG = {
   endpoint: 'https://api.deepseek.com/v1/chat/completions',
   model: 'deepseek-chat',
-  // Note: In production, this should be stored in Supabase Edge Function Secrets
-  // For now, we'll use a placeholder that users can input
-  apiKey: process.env.DEEPSEEK_API_KEY || ''
+  // API key will be provided by user input
+  apiKey: ''
 };
 
 export interface DeepSeekMessage {
