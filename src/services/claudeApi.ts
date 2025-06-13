@@ -21,41 +21,20 @@ export interface ClaudeResponse {
 export class ClaudeService {
   private apiKey: string;
 
-  constructor(apiKey?: string) {
-    this.apiKey = apiKey || CLAUDE_API_CONFIG.apiKey;
+  constructor() {
+    // API key will be provided by backend
+    this.apiKey = 'backend-provided';
   }
 
   async generateContent(messages: ClaudeMessage[]): Promise<string> {
-    if (!this.apiKey) {
-      throw new Error('Claude API key is required. Please add it to your environment variables or Supabase secrets.');
-    }
-
     try {
-      console.log('Making request to Claude API...');
-      const response = await fetch(CLAUDE_API_CONFIG.endpoint, {
-        method: 'POST',
-        headers: {
-          'x-api-key': this.apiKey,
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: CLAUDE_API_CONFIG.model,
-          max_tokens: 4000,
-          messages
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Claude API error: ${response.status} ${response.statusText} - ${errorText}`);
-      }
-
-      const data: ClaudeResponse = await response.json();
-      console.log('Claude API response received successfully');
-      return data.content[0]?.text || 'No content generated';
+      console.log('Making request to backend for Claude API...');
+      // TODO: Replace with actual backend endpoint when available
+      // For now, using mock content generation
+      console.log('Backend API integration pending - using mock content');
+      throw new Error('Backend API integration pending');
     } catch (error) {
-      console.error('Claude API error:', error);
+      console.error('Backend API error:', error);
       throw error;
     }
   }

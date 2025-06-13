@@ -9,7 +9,7 @@ import { BrandBrief } from '@/pages/Index';
 import { Send, Key, FileText } from 'lucide-react';
 
 interface BrandBriefFormProps {
-  onSubmit: (brief: BrandBrief & { apiKey: string }) => void;
+  onSubmit: (brief: BrandBrief) => void;
 }
 
 const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
@@ -24,12 +24,12 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
     referenceUrls: '',
     wordCount: 800
   });
-  const [apiKey, setApiKey] = useState('');
+  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.brandName && formData.category && formData.topic && formData.tone && apiKey) {
-      onSubmit({ ...formData, apiKey });
+    if (formData.brandName && formData.category && formData.topic && formData.tone) {
+      onSubmit(formData);
     }
   };
 
@@ -68,27 +68,6 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Claude API Key */}
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-center space-x-2 mb-2">
-          <Key className="w-4 h-4 text-blue-600" />
-          <Label htmlFor="apiKey" className="text-sm font-medium text-blue-800">
-            Claude API Key *
-          </Label>
-        </div>
-        <Input
-          id="apiKey"
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Enter your Claude API key..."
-          className="border-blue-300 focus:border-blue-500"
-          required
-        />
-        <p className="text-xs text-blue-700 mt-1">
-          Get your API key from <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" className="underline">Anthropic Console</a>
-        </p>
-      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
@@ -238,7 +217,7 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
       <Button 
         type="submit" 
         className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-3"
-        disabled={!formData.brandName || !formData.category || !formData.topic || !formData.tone || !apiKey}
+        disabled={!formData.brandName || !formData.category || !formData.topic || !formData.tone}
       >
         <Send className="w-4 h-4 mr-2" />
         Generate AI Content

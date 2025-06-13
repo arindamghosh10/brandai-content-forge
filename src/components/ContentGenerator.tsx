@@ -8,11 +8,10 @@ import { Sparkles, PenTool, Image, Hash, Globe } from 'lucide-react';
 
 interface ContentGeneratorProps {
   brandBrief: BrandBrief;
-  apiKey: string;
   onContentGenerated: (content: GeneratedContent) => void;
 }
 
-const ContentGenerator: React.FC<ContentGeneratorProps> = ({ brandBrief, apiKey, onContentGenerated }) => {
+const ContentGenerator: React.FC<ContentGeneratorProps> = ({ brandBrief, onContentGenerated }) => {
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('Analyzing your brand...');
 
@@ -48,12 +47,12 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ brandBrief, apiKey,
       }
 
       // Generate the actual content
-      const content = await generateContent(brandBrief, apiKey);
+      const content = await generateContent(brandBrief);
       onContentGenerated(content);
     };
 
     generateContentAsync();
-  }, [brandBrief, onContentGenerated, apiKey]);
+  }, [brandBrief, onContentGenerated]);
 
   const currentStepIndex = steps.findIndex(step => step.label === currentStep);
   const CurrentIcon = currentStepIndex >= 0 ? steps[currentStepIndex].icon : Sparkles;

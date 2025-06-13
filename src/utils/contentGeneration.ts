@@ -2,8 +2,8 @@
 import { BrandBrief, GeneratedContent } from '@/pages/Index';
 import { ClaudeService } from '@/services/claudeApi';
 
-export const generateContent = async (brandBrief: BrandBrief, apiKey?: string): Promise<GeneratedContent> => {
-  const claude = new ClaudeService(apiKey);
+export const generateContent = async (brandBrief: BrandBrief): Promise<GeneratedContent> => {
+  const claude = new ClaudeService();
 
   try {
     console.log('Starting comprehensive content generation with Claude...');

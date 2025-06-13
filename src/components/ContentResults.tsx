@@ -12,7 +12,6 @@ import { ClaudeService } from '@/services/claudeApi';
 interface ContentResultsProps {
   content: GeneratedContent;
   brandBrief: BrandBrief;
-  apiKey: string;
   onBackToBrief: () => void;
   onRegenerateWithTone: (tone: string) => void;
 }
@@ -20,7 +19,6 @@ interface ContentResultsProps {
 const ContentResults: React.FC<ContentResultsProps> = ({ 
   content, 
   brandBrief, 
-  apiKey,
   onBackToBrief, 
   onRegenerateWithTone 
 }) => {
@@ -81,7 +79,7 @@ ${content.body}
   const handleLocalization = async (variant: 'UK' | 'AU') => {
     setIsLocalizing(true);
     try {
-      const claude = new ClaudeService(apiKey);
+      const claude = new ClaudeService();
       const localized = await claude.localizeContent(content.body, variant);
       setLocalizedContent(localized);
       toast({
@@ -91,7 +89,7 @@ ${content.body}
     } catch (error) {
       toast({
         title: "Localization Failed",
-        description: "Please check your API key and try again",
+        description: "Backend API integration pending",
         variant: "destructive"
       });
     } finally {
@@ -102,7 +100,7 @@ ${content.body}
   const handleHumanization = async () => {
     setIsHumanizing(true);
     try {
-      const claude = new ClaudeService(apiKey);
+      const claude = new ClaudeService();
       const humanized = await claude.humanizeContent(content.body);
       setHumanizedContent(humanized);
       toast({
@@ -112,7 +110,7 @@ ${content.body}
     } catch (error) {
       toast({
         title: "Humanization Failed",
-        description: "Please check your API key and try again",
+        description: "Backend API integration pending",
         variant: "destructive"
       });
     } finally {

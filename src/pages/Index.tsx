@@ -29,14 +29,12 @@ export interface GeneratedContent {
 const Index = () => {
   const [step, setStep] = useState<'brief' | 'generating' | 'results'>('brief');
   const [brandBrief, setBrandBrief] = useState<BrandBrief | null>(null);
-  const [apiKey, setApiKey] = useState<string>('');
+  
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
 
-  const handleBriefSubmit = (briefWithApiKey: BrandBrief & { apiKey: string }) => {
-    console.log('Brand brief submitted:', briefWithApiKey);
-    const { apiKey: submittedApiKey, ...brief } = briefWithApiKey;
+  const handleBriefSubmit = (brief: BrandBrief) => {
+    console.log('Brand brief submitted:', brief);
     setBrandBrief(brief);
-    setApiKey(submittedApiKey);
     setStep('generating');
   };
 
@@ -140,7 +138,6 @@ const Index = () => {
         {step === 'generating' && brandBrief && (
           <ContentGenerator 
             brandBrief={brandBrief} 
-            apiKey={apiKey}
             onContentGenerated={handleContentGenerated}
           />
         )}
@@ -149,7 +146,6 @@ const Index = () => {
           <ContentResults 
             content={generatedContent}
             brandBrief={brandBrief!}
-            apiKey={apiKey}
             onBackToBrief={handleBackToBrief}
             onRegenerateWithTone={handleRegenerateWithTone}
           />
