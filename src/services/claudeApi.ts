@@ -1,63 +1,61 @@
-// DeepSeek API Configuration
-export const DEEPSEEK_API_CONFIG = {
-  endpoint: 'https://api.deepseek.com/v1/chat/completions',
-  model: 'deepseek-chat',
+// Claude API Configuration
+export const CLAUDE_API_CONFIG = {
+  endpoint: 'https://api.anthropic.com/v1/messages',
+  model: 'claude-3-5-sonnet-20241022',
   // API key will be provided by user input
   apiKey: ''
 };
 
-export interface DeepSeekMessage {
-  role: 'system' | 'user' | 'assistant';
+export interface ClaudeMessage {
+  role: 'user' | 'assistant';
   content: string;
 }
 
-export interface DeepSeekResponse {
-  choices: Array<{
-    message: {
-      content: string;
-    };
+export interface ClaudeResponse {
+  content: Array<{
+    text: string;
+    type: string;
   }>;
 }
 
-export class DeepSeekService {
+export class ClaudeService {
   private apiKey: string;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || DEEPSEEK_API_CONFIG.apiKey;
+    this.apiKey = apiKey || CLAUDE_API_CONFIG.apiKey;
   }
 
-  async generateContent(messages: DeepSeekMessage[]): Promise<string> {
+  async generateContent(messages: ClaudeMessage[]): Promise<string> {
     if (!this.apiKey) {
-      throw new Error('DeepSeek API key is required. Please add it to your environment variables or Supabase secrets.');
+      throw new Error('Claude API key is required. Please add it to your environment variables or Supabase secrets.');
     }
 
     try {
-      console.log('Making request to DeepSeek API...');
-      const response = await fetch(DEEPSEEK_API_CONFIG.endpoint, {
+      console.log('Making request to Claude API...');
+      const response = await fetch(CLAUDE_API_CONFIG.endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'x-api-key': this.apiKey,
           'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: DEEPSEEK_API_CONFIG.model,
-          messages,
+          model: CLAUDE_API_CONFIG.model,
           max_tokens: 4000,
-          temperature: 0.7,
-          top_p: 0.9,
+          messages
         }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`DeepSeek API error: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`Claude API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
-      const data: DeepSeekResponse = await response.json();
-      console.log('DeepSeek API response received successfully');
-      return data.choices[0]?.message?.content || 'No content generated';
+      const data: ClaudeResponse = await response.json();
+      console.log('Claude API response received successfully');
+      return data.content[0]?.text || 'No content generated';
     } catch (error) {
-      console.error('DeepSeek API error:', error);
+      console.error('Claude API error:', error);
       throw error;
     }
   }
@@ -110,10 +108,11 @@ CONTENT STRUCTURE:
 
 Write as if you're crafting content for a premium brand that wants to establish thought leadership and drive meaningful engagement. Focus on providing genuine value while subtly promoting the brand's expertise.
 
-Format the response as a complete, publication-ready blog post.`;
+Format the response as a complete, publication-ready blog post.
 
-    const messages: DeepSeekMessage[] = [
-      { role: 'system', content: systemPrompt },
+${systemPrompt}`;
+
+    const messages: ClaudeMessage[] = [
       { role: 'user', content: userPrompt }
     ];
 
@@ -121,9 +120,9 @@ Format the response as a complete, publication-ready blog post.`;
   }
 
   async generateSEOData(blogContent: string, brandBrief: any): Promise<{ metaDescription: string; keywords: string[] }> {
-    const systemPrompt = `You are an SEO expert and digital marketing specialist. Generate powerful SEO metadata that will help content rank higher and attract more clicks. Focus on creating compelling meta descriptions that encourage clicks and extract the most relevant, high-value keywords.`;
+    const userPrompt = `You are an SEO expert and digital marketing specialist. Generate powerful SEO metadata that will help content rank higher and attract more clicks. Focus on creating compelling meta descriptions that encourage clicks and extract the most relevant, high-value keywords.
 
-    const userPrompt = `Based on this blog content for ${brandBrief.brandName} in the ${brandBrief.category} industry, generate optimal SEO metadata:
+Based on this blog content for ${brandBrief.brandName} in the ${brandBrief.category} industry, generate optimal SEO metadata:
 
 BLOG CONTENT PREVIEW:
 ${blogContent.substring(0, 800)}...
@@ -154,8 +153,7 @@ Respond in JSON format:
   "keywords": ["keyword1", "keyword2", ...]
 }`;
 
-    const messages: DeepSeekMessage[] = [
-      { role: 'system', content: systemPrompt },
+    const messages: ClaudeMessage[] = [
       { role: 'user', content: userPrompt }
     ];
 
@@ -181,7 +179,7 @@ Respond in JSON format:
   }
 
   async localizeContent(content: string, variant: 'UK' | 'AU'): Promise<string> {
-    const systemPrompt = `You are a professional localization expert specializing in ${variant} English. Convert content to authentic ${variant} English by adjusting:
+    const userPrompt = `You are a professional localization expert specializing in ${variant} English. Convert content to authentic ${variant} English by adjusting:
 
 - Spelling (e.g., color→colour, organize→organise)
 - Terminology (e.g., elevator→lift, apartment→flat)
@@ -190,18 +188,21 @@ Respond in JSON format:
 - Local business practices and regulations
 - Idiomatic expressions and colloquialisms
 
-Maintain the original tone, structure, and marketing message while making it feel natural to ${variant} readers.`;
+Maintain the original tone, structure, and marketing message while making it feel natural to ${variant} readers.
 
-    const messages: DeepSeekMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: `Convert this content to authentic ${variant} English:\n\n${content}` }
+Convert this content to authentic ${variant} English:
+
+${content}`;
+
+    const messages: ClaudeMessage[] = [
+      { role: 'user', content: userPrompt }
     ];
 
     return await this.generateContent(messages);
   }
 
   async humanizeContent(content: string): Promise<string> {
-    const systemPrompt = `You are an expert content editor who specializes in making AI-generated content sound more natural, emotional, and human. Your goal is to:
+    const userPrompt = `You are an expert content editor who specializes in making AI-generated content sound more natural, emotional, and human. Your goal is to:
 
 - Add personality and emotional depth
 - Vary sentence structure and rhythm
@@ -212,20 +213,23 @@ Maintain the original tone, structure, and marketing message while making it fee
 - Make the content feel like it was written by a passionate expert
 - Maintain the core message and structure while adding human warmth
 
-Transform robotic AI writing into engaging, authentic content that builds genuine connection with readers.`;
+Transform robotic AI writing into engaging, authentic content that builds genuine connection with readers.
 
-    const messages: DeepSeekMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: `Make this content sound more natural, engaging, and human while maintaining its core message:\n\n${content}` }
+Make this content sound more natural, engaging, and human while maintaining its core message:
+
+${content}`;
+
+    const messages: ClaudeMessage[] = [
+      { role: 'user', content: userPrompt }
     ];
 
     return await this.generateContent(messages);
   }
 
   async generateImagePrompts(blogContent: string, brandBrief: any): Promise<string[]> {
-    const systemPrompt = `You are a creative director specializing in visual content strategy. Generate detailed, specific image prompts that will create compelling visuals for blog content.`;
+    const userPrompt = `You are a creative director specializing in visual content strategy. Generate detailed, specific image prompts that will create compelling visuals for blog content.
 
-    const userPrompt = `Based on this blog content about "${brandBrief.topic}" for ${brandBrief.brandName} in the ${brandBrief.category} industry, generate 4-5 specific image prompts:
+Based on this blog content about "${brandBrief.topic}" for ${brandBrief.brandName} in the ${brandBrief.category} industry, generate 4-5 specific image prompts:
 
 BLOG CONTENT:
 ${blogContent.substring(0, 1000)}...
@@ -245,8 +249,7 @@ Generate image prompts that are:
 Return as a JSON array of strings:
 ["prompt1", "prompt2", "prompt3", "prompt4"]`;
 
-    const messages: DeepSeekMessage[] = [
-      { role: 'system', content: systemPrompt },
+    const messages: ClaudeMessage[] = [
       { role: 'user', content: userPrompt }
     ];
 

@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BrandBrief, GeneratedContent } from '@/pages/Index';
 import { ArrowLeft, Copy, Download, RefreshCw, Globe, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { DeepSeekService } from '@/services/deepseekApi';
+import { ClaudeService } from '@/services/claudeApi';
 
 interface ContentResultsProps {
   content: GeneratedContent;
@@ -81,8 +81,8 @@ ${content.body}
   const handleLocalization = async (variant: 'UK' | 'AU') => {
     setIsLocalizing(true);
     try {
-      const deepseek = new DeepSeekService(apiKey);
-      const localized = await deepseek.localizeContent(content.body, variant);
+      const claude = new ClaudeService(apiKey);
+      const localized = await claude.localizeContent(content.body, variant);
       setLocalizedContent(localized);
       toast({
         title: "Localization Complete",
@@ -102,8 +102,8 @@ ${content.body}
   const handleHumanization = async () => {
     setIsHumanizing(true);
     try {
-      const deepseek = new DeepSeekService(apiKey);
-      const humanized = await deepseek.humanizeContent(content.body);
+      const claude = new ClaudeService(apiKey);
+      const humanized = await claude.humanizeContent(content.body);
       setHumanizedContent(humanized);
       toast({
         title: "Humanization Complete",
@@ -319,7 +319,7 @@ ${content.body}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">Convert content to different English variants using DeepSeek AI</p>
+                <p className="text-gray-600 mb-4">Convert content to different English variants using Claude AI</p>
                 <div className="space-y-2">
                   <Button 
                     variant="outline" 
@@ -365,7 +365,7 @@ ${content.body}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">Make AI content sound more natural and emotional using DeepSeek AI</p>
+                <p className="text-gray-600 mb-4">Make AI content sound more natural and emotional using Claude AI</p>
                 <Button 
                   variant="outline" 
                   className="w-full"

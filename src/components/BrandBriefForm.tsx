@@ -68,12 +68,12 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* DeepSeek API Key */}
+      {/* Claude API Key */}
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <div className="flex items-center space-x-2 mb-2">
           <Key className="w-4 h-4 text-blue-600" />
           <Label htmlFor="apiKey" className="text-sm font-medium text-blue-800">
-            DeepSeek API Key *
+            Claude API Key *
           </Label>
         </div>
         <Input
@@ -81,12 +81,12 @@ const BrandBriefForm: React.FC<BrandBriefFormProps> = ({ onSubmit }) => {
           type="password"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Enter your DeepSeek API key..."
+          placeholder="Enter your Claude API key..."
           className="border-blue-300 focus:border-blue-500"
           required
         />
         <p className="text-xs text-blue-700 mt-1">
-          Get your API key from <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer" className="underline">DeepSeek Platform</a>
+          Get your API key from <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" className="underline">Anthropic Console</a>
         </p>
       </div>
 

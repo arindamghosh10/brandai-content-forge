@@ -1,17 +1,17 @@
 
 import { BrandBrief, GeneratedContent } from '@/pages/Index';
-import { DeepSeekService } from '@/services/deepseekApi';
+import { ClaudeService } from '@/services/claudeApi';
 
 export const generateContent = async (brandBrief: BrandBrief, apiKey?: string): Promise<GeneratedContent> => {
-  const deepseek = new DeepSeekService(apiKey);
+  const claude = new ClaudeService(apiKey);
 
   try {
-    console.log('Starting comprehensive content generation with DeepSeek...');
+    console.log('Starting comprehensive content generation with Claude...');
     console.log('Brand Brief:', brandBrief);
 
-    // Step 1: Generate the main blog content using DeepSeek as a marketing manager
+    // Step 1: Generate the main blog content using Claude as a marketing manager
     console.log('Generating blog post...');
-    const blogContent = await deepseek.generateBlogPost(brandBrief);
+    const blogContent = await claude.generateBlogPost(brandBrief);
     
     // Step 2: Extract title from blog content
     const lines = blogContent.split('\n').filter(line => line.trim());
@@ -22,11 +22,11 @@ export const generateContent = async (brandBrief: BrandBrief, apiKey?: string): 
 
     // Step 3: Generate SEO data based on the actual content
     console.log('Generating SEO data...');
-    const seoData = await deepseek.generateSEOData(blogContent, brandBrief);
+    const seoData = await claude.generateSEOData(blogContent, brandBrief);
 
     // Step 4: Generate image prompts and convert to image URLs
     console.log('Generating image prompts...');
-    const imagePrompts = await deepseek.generateImagePrompts(blogContent, brandBrief);
+    const imagePrompts = await claude.generateImagePrompts(blogContent, brandBrief);
     const images = generateImageUrls(brandBrief, blogContent, imagePrompts);
 
     console.log('Content generation completed successfully');
@@ -40,14 +40,14 @@ export const generateContent = async (brandBrief: BrandBrief, apiKey?: string): 
       tone: brandBrief.tone
     };
   } catch (error) {
-    console.error('Error generating content with DeepSeek:', error);
+    console.error('Error generating content with Claude:', error);
     
     // Provide more detailed error information
     if (error instanceof Error) {
       console.error('Error details:', error.message);
     }
     
-    // Fallback to original mock generation if DeepSeek fails
+    // Fallback to original mock generation if Claude fails
     console.log('Falling back to mock content generation...');
     return generateMockContent(brandBrief);
   }
